@@ -25,14 +25,7 @@ body {
     margin-right: 10px;
   }
   
-  .input-section button {
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+
   
   .expenses-list {
     margin: 20px;

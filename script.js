@@ -1,180 +1,152 @@
-let expenses = [];
-let totalAmount = 0;
+$(document).ready(function() {
+    let expenses = [];
+    let totalAmount = 0;
 
-const categorySelect = document.getElementById('category-select');
-const amountInput = document.getElementById('amount-input');
-const dateInput = document.getElementById('date-input');
-const addBtn = document.getElementById('add-btn');
-const expensesTableBody = document.getElementById('expnese-table-body');
-const totalAmountCell = document.getElementById('total-amount');
+    const categorySelect = $('#category-select');
+    const amountInput = $('#amount-input');
+    const dateInput = $('#date-input');
+    const addBtn = $('#add-btn');
+    const expensesTableBody = $('#expnese-table-body');
+    const totalAmountCell = $('#total-amount');
 
-addBtn.addEventListener('click', function() {
-    const category = categorySelect.value;
-    const amount = Number(amountInput.value);
-    const date = dateInput.value;
-    const time = new Date().toLocaleTimeString();
+    addBtn.on('click', function() {
+        const category = categorySelect.val();
+        const amount = Number(amountInput.val());
+        const date = dateInput.val();
+        const time = new Date().toLocaleTimeString();
 
-    if (category === '') {
-        alert('Please select a category');
-        return;
-    }
-    if (isNaN(amount) || amount <=0 ) {
-        alert('Please enter a valid amount');
-        return;
-    }
-    if(date === '') {
-        alert('Please select a date')
-        return;
-    }
+        if (category === '') {
+            alert('Please select a category');
+            return;
+        }
+        if (isNaN(amount) || amount <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+        if (date === '') {
+            alert('Please select a date');
+            return;
+        }
 
+        expenses.push({ category, amount, date, time });
 
-    expenses.push({category, amount, date,time});
+        totalAmount += amount;
+        totalAmountCell.text(totalAmount);
 
-    totalAmount += amount;
-    totalAmountCell.textContent = totalAmount;
+        const newRow = $('<tr></tr>');
 
-    const newRow = expensesTableBody.insertRow();
+        newRow.append('<td>' + category + '</td>');
+        newRow.append('<td>' + amount + '</td>');
+        newRow.append('<td>' + date + '</td>');
+        newRow.append('<td>' + time + '</td>');
 
-    const categoryCell = newRow.insertCell();
-    const amountCell = newRow.insertCell();
-    const dateCell = newRow.insertCell();
-    const timeCell = newRow.insertCell();
-    const deleteCell = newRow.insertCell();
-    const deleteBtn = document.createElement('button');
+        const deleteCell = $('<td></td>');
+        const deleteBtn = $('<button class="delete-btn">Delete</button');
 
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.classList.add('delete-btn');
-    deleteBtn.addEventListener('click', function() {
-        expenses.splice(expenses.indexOf(expense), 1);
-
-        totalAmount -= expense.amount;
-        totalAmountCell.textContent = totalAmount;
-
-        expensesTableBody.removeChild(newRow);
-    });
-
-    const expense = expenses[expenses.length - 1];
-    categoryCell.textContent = expense.category;
-    amountCell.textContent = expense.amount;
-    dateCell.textContent = expense.date;
-    timeCell.textContent = expense.time;
-    deleteCell.appendChild(deleteBtn);
-
-});
-
-for (const expense of expenses) {
-    totalAmount += expense.amount;
-    totalAmountCell.textContent = totalAmount;
-
-    const newRow = expensesTableBody.inserRow();
-    const categoryCell = newRow.insertCell();
-    const amountCell = newRow.insertCell();
-    const dateCell = newRow.insertCell();
-    const deleteCell = newRow.insertCell();
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.classList.add('delete-btn');
-    deleteBtn.addEventListener('click', function() {
-        expenses.splice(expenses.indexOf(expense), 1);
-
-        totalAmount -= expense.amount;
-        totalAmountCell.textContent = totalAmount;
-
-        expensesTableBody.removeChild(newRow);
-    });
-    categoryCell.textContent = expense.category;
-    amountCell.textContent = expense.amount;
-    dateCell.textContent = expense.date;
-    deleteCell.appendChild(deleteBtn);
-}
-
-const addCustomCategoryModalBtn = document.getElementById('add-custom-category-modal-btn');
-const customCategoryInput = document.getElementById('custom-category-input');
-const addCustomCategoryModalSubmitBtn = document.getElementById('add-custom-category-modal-submit');
-
-addCustomCategoryModalBtn.addEventListener('click', function() {
-    $('#add-custom-category-modal').modal('show'); // Show the modal
-});
-
-addCustomCategoryModalSubmitBtn.addEventListener('click', function() {
-    const customCategory = customCategoryInput.value.trim();
-
-    if (customCategory === '') {
-        alert('Please enter a custom category');
-        return;
-    }
-
-    // Check if the category already exists
-    if (categorySelect.querySelector(`option[value="${customCategory}"]`)) {
-        alert('Category already exists');
-        return;
-    }
-
-    // Add the custom category to the category dropdown
-    const customCategoryOption = document.createElement('option');
-    customCategoryOption.value = customCategory;
-    customCategoryOption.textContent = customCategory;
-    categorySelect.appendChild(customCategoryOption);
-
-    // Clear the input field
-    customCategoryInput.value = '';
-
-    // Close the modal
-    $('#add-custom-category-modal').modal('hide');
-});
-const categoryFilter = document.getElementById('category-filter');
-const expenseTableBody = document.getElementById('expnese-table-body');
-
-categoryFilter.addEventListener('change', function() {
-    const selectedCategory = categoryFilter.value;
-    
-    if (selectedCategory === 'All') {
-        displayExpenses(expenses);
-    } else {
-        const filteredExpenses = expenses.filter(expense => expense.category === selectedCategory);
-        displayExpenses(filteredExpenses);
-    }
-});
-
-function displayExpenses(filteredExpenses) {
-    expenseTableBody.innerHTML = '';
-
-    const displayExpenses = filteredExpenses.length ? filteredExpenses : expenses;
-
-    displayExpenses.forEach(expense => {
-        const newRow = expenseTableBody.insertRow();
-        const categoryCell = newRow.insertCell();
-        const amountCell = newRow.insertCell();
-        const dateCell = newRow.insertCell();
-        const timeCell = newRow.insertCell();
-        const deleteCell = newRow.insertCell();
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.classList.add('delete-btn');
-
-        deleteBtn.addEventListener('click', function() {
-            const index = expenses.indexOf(expense);
+        deleteBtn.on('click', function() {
+            const index = expenses.findIndex(expense => expense.category === category && expense.amount === amount && expense.date === date && expense.time === time);
             if (index !== -1) {
                 expenses.splice(index, 1);
-                totalAmount -= expense.amount;
-                totalAmountCell.textContent = totalAmount;
-                expenseTableBody.removeChild(newRow);
+                totalAmount -= amount;
+                totalAmountCell.text(totalAmount);
+                newRow.remove();
             }
         });
 
-        categoryCell.textContent = expense.category;
-        amountCell.textContent = expense.amount;
-        dateCell.textContent = expense.date;
-        timeCell.textContent = expense.time;
-        deleteCell.appendChild(deleteBtn);
+        deleteCell.append(deleteBtn);
+        newRow.append(deleteCell);
+        expensesTableBody.append(newRow);
     });
 
-    updateTotal(displayExpenses);
-}
+    // Handle the modal for adding custom categories
+    const addCustomCategoryModalBtn = $('#add-custom-category-modal-btn');
+    const customCategoryInput = $('#custom-category-input');
+    const addCustomCategoryModalSubmitBtn = $('#add-custom-category-modal-submit');
 
-function updateTotal(filteredExpenses) {
-    const totalAmountCell = document.getElementById('total-amount');
-    const total = filteredExpenses.reduce((acc, expense) => acc + expense.amount, 0);
-    totalAmountCell.textContent = total;
-}
+    addCustomCategoryModalBtn.on('click', function() {
+        $('#add-custom-category-modal').modal('show');
+    });
+
+    addCustomCategoryModalSubmitBtn.on('click', function() {
+        const customCategory = customCategoryInput.val().trim();
+
+        if (customCategory === '') {
+            alert('Please enter a custom category');
+            return;
+        }
+
+        // Check if the category already exists
+        if (categorySelect.find(`option[value="${customCategory}"]`).length > 0) {
+            alert('Category already exists');
+            return;
+        }
+
+        // Add the custom category to the category dropdown
+        categorySelect.append($('<option>', {
+            value: customCategory,
+            text: customCategory
+        }));
+
+        // Clear the input field
+        customCategoryInput.val('');
+
+        // Close the modal
+        $('#add-custom-category-modal').modal('hide');
+    });
+    const categoryFilter = $('#category-filter');
+    const expenseTableBody = $('#expnese-table-body');
+
+    categoryFilter.on('change', function() {
+        const selectedCategory = categoryFilter.val();
+        
+        if (selectedCategory === 'All') {
+            displayExpenses(expenses);
+        } else {
+            const filteredExpenses = expenses.filter(expense => expense.category === selectedCategory);
+            displayExpenses(filteredExpenses);
+        }
+    });
+
+    function displayExpenses(filteredExpenses) {
+        expenseTableBody.empty();
+
+        const displayExpenses = filteredExpenses.length ? filteredExpenses : expenses;
+
+        displayExpenses.forEach(expense => {
+            const newRow = $('<tr></tr>');
+            const categoryCell = $('<td>' + expense.category + '</td>');
+            const amountCell = $('<td>' + expense.amount + '</td>');
+            const dateCell = $('<td>' + expense.date + '</td>');
+            const timeCell = $('<td>' + expense.time + '</td>');
+            const deleteCell = $('<td></td>');
+
+            const deleteBtn = $('<button class="delete-btn">Delete</button>');
+
+            deleteBtn.on('click', function() {
+                const index = expenses.indexOf(expense);
+                if (index !== -1) {
+                    expenses.splice(index, 1);
+                    totalAmount -= expense.amount;
+                    totalAmountCell.text(totalAmount);
+                    newRow.remove();
+                }
+            });
+
+            deleteCell.append(deleteBtn);
+            newRow.append(categoryCell);
+            newRow.append(amountCell);
+            newRow.append(dateCell);
+            newRow.append(timeCell);
+            newRow.append(deleteCell);
+            expenseTableBody.append(newRow);
+        });
+
+        updateTotal(displayExpenses);
+    }
+
+    function updateTotal(filteredExpenses) {
+        const totalAmountCell = $('#total-amount');
+        const total = filteredExpenses.reduce((acc, expense) => acc + expense.amount, 0);
+        totalAmountCell.text(total);
+    }
+});
